@@ -1,1 +1,1 @@
-A szimuláció elinditásához vagy frissitéséhez le kell futtatni a fajlfeltoltes.py programot.
+A szimuláció elinditásához vagy frissitéséhez le kell futtatni a fajlfeltoltes.py programot, ezzel létrehozva a kamionok.txt fájlt. Ezután el is indíthatjuk a szallitas.py programot.

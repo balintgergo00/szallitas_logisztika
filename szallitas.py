@@ -56,6 +56,10 @@ def fogyasztas_lekeres(kamionId):
             return kamion.fogyasztas
     return None
 
+def osszes_fogyasztas():
+    osszes_pillfogyasztas = [i.fogyasztas for i in kamionok]
+    return osszes_pillfogyasztas
+
 def rendelkezesre_allo_kamion_flotta():
     telephelyen_levok = [i for i in kamionok if i.helyzet == "telephelyen"]
     kuldetesen_levok = [i for i in kamionok if i.helyzet != "telephelyen"]
@@ -79,10 +83,12 @@ def idomulas(napok):
 # programm
 
 while True:
-    opcio = input("\n\n\nMenü: \n\nKamion adatainak lekérése: 1 \nRendszámlekérés: 2 \nMegrendelés: 3 \nKamion fogyasztás lekérése: 4 \nRendelkezésre álló kamion flotta: 5 \nIdő múlás szimulálása: 6 \nKilépés: 0 \n\nFunkció választása: ")
+    opcio = input("\n\n\nMenü: \n\nKamion adatainak lekérése: 1 \nRendszámlekérés: 2 \nMegrendelés: 3 \nPillanatnyi fogyasztás lekérése: 4 \nÖsszes kamion pillanatnyi fogyasztása: 5 \nRendelkezésre álló kamion flotta: 6 \nIdő múlás szimulálása: 7 \nKilépés: 0 \n\nFunkció választása: ")
+    
     if opcio == "0":
         print("Kilépés...")
         break
+    
     elif opcio == "1":
         kamionId = int(input("Adja meg a kamion azonosítóját (101-150): "))
         kamion = kamion_adatok_lekeres(kamionId)
@@ -90,6 +96,7 @@ while True:
             print(f"Kamion adatai: kamionId: {kamion.kamionId}, Rendszám: {kamion.rendszam}, Teherbírás: {kamion.teherbiras} tonna, Fogyasztás: {kamion.fogyasztas} l/100km, Helyzet: {kamion.helyzet}, Küldetés időtartam: {kamion.kuldetes_idotartam} nap")
         else:
             print("Nincs ilyen kamion.")
+    
     elif opcio == "2":
         kamionId = int(input("Adja meg a kamion azonosítóját (101-150): "))
         rendszam = rendszam_lekeres(kamionId)
@@ -97,33 +104,44 @@ while True:
             print(f"A kamion rendszáma: {rendszam}")
         else:
             print("Nincs ilyen kamion.")
+    
     elif opcio == "3":
         szukseges_kamionok = megrendeles()
         if szukseges_kamionok is not None:
-            print("Szükséges kamionok a szállításhoz:")
+            print("Kiküldtük a szükséges kamionokat a küldetésre:")
             for i in szukseges_kamionok:
-                print(f"  kamionId: {i.kamionId}, Rendszám: {i.rendszam}, Teherbírás: {i.teherbiras} t")
                 i.helyzet = "kuldetesen"
-                i .kuldetes_idotartam = random.randint(1, 14)
+                i.kuldetes_idotartam = random.randint(1, 14)
+                print(f"  kamionId: {i.kamionId}, Rendszám: {i.rendszam}, Teherbírás: {i.teherbiras} tonna, Ennyi nap múlva ér vissza: {i.kuldetes_idotartam} nap")
+            
+            leghosszabb_kuld = max(i.kuldetes_idotartam for i in szukseges_kamionok)
+            print(f"{leghosszabb_kuld} nap múlva ér vissza az utolsó kamion is.")
+                
             
             with open("kamionok.txt", "w", encoding="utf-8") as file:
                 file.write("kamionId;rendszam;teherbiras;fogyasztas;helyzet;kuldetes_idotartam\n")
                 for i in kamionok:
                     file.write(f"{i.kamionId};{i.rendszam};{i.teherbiras};{i.fogyasztas};{i.helyzet};{i.kuldetes_idotartam}\n")
-        else:
-            print("Nincs elegendő kapacitás a szállításhoz.")
+        
+    
     elif opcio == "4":
         kamionId = int(input("Adja meg a kamion azonosítóját (101-150): "))
         fogyasztas = fogyasztas_lekeres(kamionId)
         if fogyasztas is not None:
-            print(f"A kamion fogyasztása: {fogyasztas} l/100km")
+            print(f"A kamion pillanatnyi fogyasztása: {fogyasztas} l/100km")
         else:
             print("Nincs ilyen kamion.")
+    
     elif opcio == "5":
+        osszes_pillfogyasztas = osszes_fogyasztas()
+        print(f"Az összes kamion pillanatnyi fogyasztása: {sum(osszes_pillfogyasztas)} l/100km")
+    
+    elif opcio == "6":
         telephelyen_levok, kuldetesen_levok = rendelkezesre_allo_kamion_flotta()
         print(f"Telephelyen lévő kamionok száma: {len(telephelyen_levok)}")
         print(f"Küldetésen lévő kamionok száma: {len(kuldetesen_levok)}")
-    elif opcio == "6":
+    
+    elif opcio == "7":
         napok = int(input("Adja meg az eltelt napok számát: "))
         idomulas(napok)
         print(f"{napok} nap eltelt, a kamionok státusza frissítve.")
